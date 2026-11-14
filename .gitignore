@@ -1,0 +1,34 @@
+```gitignore
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE settings
+.vscode/
+
+# Jupyter temporary files
+.ipynb_checkpoints/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Original dataset and dataset archive
+data/
+csv_files_4.zip
+
+# Trained model checkpoints
+checkpoints/
+
+# Generated results (kept local until sharing permission is confirmed)
+outputs/
+
+# Dataset-derived preview images
+binary_mask_preview.png
+mask_preview.png
+```
