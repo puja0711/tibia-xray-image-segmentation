@@ -8,7 +8,7 @@ from pathlib import Path
 from PIL import Image
 
 from dataset import TibiaDataset
-from models.unet import UNet
+from models.unet_lext import UNetLext
 from dice_score import dice_score
 
 
@@ -21,10 +21,18 @@ print("Evaluation device:", DEVICE)
 
 # 2. Load the best saved model
 
-model = UNet().to(DEVICE)
+model = UNetLext(
+    basic_width=24,
+    depth=6,
+    center_depth=2,
+    input_channels=1,
+    output_channels=1,
+    convolution="regular",
+    activation="relu"
+).to(DEVICE)
 
 checkpoint = torch.load(
-    "checkpoints/best_model.pth",
+    "checkpoints/best_model_lext.pth",
     map_location=DEVICE,
     weights_only=False
 )
@@ -71,11 +79,11 @@ with torch.no_grad():
         output = model(image)
         prediction = torch.sigmoid(output)
 
-        score = dice_score(prediction, mask, threshold=0.6)
+        score = dice_score(prediction, mask, threshold=0.5)
         validation_scores.append(score)
 
         predicted_mask = (
-            prediction.squeeze().cpu().numpy() > 0.6
+            prediction.squeeze().cpu().numpy() > 0.5
         ).astype(np.uint8)
 
         actual_mask = mask.squeeze().cpu().numpy()
@@ -149,7 +157,7 @@ with torch.no_grad():
         prediction = torch.sigmoid(output)
 
         predicted_mask = (
-            prediction.squeeze().cpu().numpy() > 0.6
+            prediction.squeeze().cpu().numpy() > 0.5
         ).astype(np.uint8)
 
         Image.fromarray(
