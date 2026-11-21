@@ -1,27 +1,34 @@
 # Tibia X-ray Image Segmentation Using LeXT U-Net
 
-## 1. Project Overview
+A deep learning project for automatic tibia segmentation in X-ray images using a modified U-Net architecture implemented with PyTorch.
 
-This project was completed as part of the Machine Vision and Neural Networks course. The aim was to develop a deep learning model that segments the tibia region in X-ray images.
+## Project Overview
 
-I developed a binary image segmentation model using PyTorch. The project uses a modified U-Net implementation developed by Aleksei Tiulpin from the University of Oulu. The model was trained using X-ray images and their corresponding annotated masks.
+This project was completed as part of the **Machine Vision and Neural Networks** course.
 
-After training, I evaluated the model using validation images and generated segmentation predictions for a separate test set.
+The objective was to develop a binary image segmentation model capable of identifying the tibia region in X-ray images.
 
-## 2. Project Objectives
+The project uses a modified U-Net implementation developed by Aleksei Tiulpin from the University of Oulu. The model was trained using X-ray images and their corresponding annotated segmentation masks.
 
-The main objectives of this project were:
+The work covers dataset preparation, image preprocessing, model implementation, training, validation, evaluation and prediction generation.
 
-- Prepare and preprocess X-ray images and segmentation masks.
-- Understand and use the U-Net architecture.
-- Train a neural network for binary image segmentation.
-- Evaluate segmentation performance using the Dice coefficient.
-- Generate and visualize segmentation predictions.
-- Improve model training and evaluation.
+## Results at a Glance
 
-## 3. Dataset and Preprocessing
+| Evaluation | Result |
+|---|---:|
+| Model architecture | LeXT U-Net |
+| Training images | 80 |
+| Validation images | 20 |
+| Test images | 50 |
+| Best checkpoint epoch | 19 |
+| Average validation Dice | **96.37%** |
+| Prediction threshold | 0.5 |
 
-The dataset used for this project contained:
+**Note:** The Dice score represents the average result across the 20 annotated validation images. The 50 test images do not have ground-truth masks, so a quantitative test score could not be calculated.
+
+## 1. Dataset and Preprocessing
+
+The dataset contained:
 
 - 150 X-ray images.
 - 100 annotated segmentation masks.
@@ -36,69 +43,71 @@ The dataset was divided into three groups:
 | Testing | 50 |
 | **Total X-ray images** | **150** |
 
-The 100 annotated images were used for training and validation. The remaining 50 X-ray images were reserved for testing.
+The 100 annotated images were divided into 80 training images and 20 validation images. The remaining 50 images were reserved for testing.
 
-The preprocessing steps included:
+Preprocessing included:
 
 - Converting X-ray images to grayscale.
 - Processing segmentation masks as binary masks.
 - Resizing images and masks to 224 × 224 pixels.
-- Normalizing pixel values.
+- Normalizing image pixel values.
 - Creating CSV files to organize the training, validation and test datasets.
 
 **Dataset availability:** The original dataset is not included in this public repository. It must be obtained separately, subject to its original licence and usage conditions.
 
-## 4. U-Net Model Architecture
+## 2. Model Architecture
 
-This project uses a modified U-Net implementation developed by Aleksei Tiulpin, University of Oulu (2017).
+This project uses a modified U-Net implementation developed by **Aleksei Tiulpin, University of Oulu (2017)**.
 
-The implementation supports different network depths, widths and activation functions.
+The architecture consists of:
 
-The model configuration used in this project includes:
+- An encoder for extracting image features.
+- A bottleneck for processing deeper features.
+- A decoder for reconstructing segmentation maps.
+- Skip connections that transfer information between encoder and decoder layers.
 
-- Basic width: 24
-- Depth: 6
-- Center depth: 2
-- Input channels: 1
-- Output channels: 1
-- Convolution type: Regular
-- Activation function: ReLU
+The model receives a single-channel grayscale X-ray image and produces a single-channel segmentation prediction.
 
-The architecture contains an encoder, a bottleneck, a decoder and skip connections. It receives grayscale X-ray images and produces one-channel segmentation predictions.
-
-The model implementation is available in `models/unet_lext.py`.
-
-## 5. Model Training
-
-The model was trained using the following configuration:
+### Model Configuration
 
 | Parameter | Value |
 |---|---|
-| Deep learning framework | PyTorch |
-| Architecture | LeXT U-Net |
+| Basic width | 24 |
+| Depth | 6 |
+| Center depth | 2 |
 | Input channels | 1 |
 | Output channels | 1 |
-| Image size | 224 × 224 |
+| Convolution type | Regular |
+| Activation function | ReLU |
+
+The implementation is available in `models/unet_lext.py`.
+
+## 3. Model Training
+
+The model was trained using PyTorch with the following configuration:
+
+| Parameter | Value |
+|---|---|
+| Architecture | LeXT U-Net |
 | Epochs | 20 |
 | Batch size | 4 |
 | Learning rate | 0.0001 |
 | Optimizer | Adam |
 | Loss function | Combined BCE and Dice Loss |
 | Random seed | 42 |
+| Image size | 224 × 224 |
 
-The training process uses a combination of Binary Cross-Entropy loss and Dice loss.
+The training process combines Binary Cross-Entropy loss with Dice loss to support both pixel-level classification and segmentation overlap.
 
-Random seeds were set to help make the training process reproducible.
+Random seeds were set for reproducibility. The best model checkpoint was selected based on validation Dice performance.
 
-The best model checkpoint was saved based on validation Dice performance.
+The best checkpoint was saved at **epoch 19**.
 
-The best checkpoint was obtained at epoch 19.
+## 4. Model Evaluation
 
-## 6. Model Evaluation
+After training, the best saved checkpoint was evaluated using the 20 validation images.
 
-After training, I evaluated the best saved checkpoint using the 20 validation images.
-
-The evaluation produced the following result:
+### Validation Results
 
 | Metric | Result |
 |---|---:|
@@ -108,30 +117,35 @@ The evaluation produced the following result:
 | Prediction threshold | 0.5 |
 | Best checkpoint epoch | 19 |
 
-The Dice score was calculated separately for each validation image, and the final result represents the average across all 20 images.
+The Dice score was calculated separately for each validation image. The reported result is the average across all 20 images.
 
-## 7. Segmentation Results
+## 5. Segmentation Visualizations
 
-The project generates visual comparisons containing:
+The following examples compare the original X-ray image, the ground-truth segmentation mask and the prediction generated by the trained model.
 
-1. Original X-ray images.
-2. Ground-truth segmentation masks.
-3. Predicted segmentation masks.
+### Example 1 – Validation Image 80
 
-The validation comparison images are saved in:
+![Tibia segmentation example 1](figures/tibia_segmentation_example.png)
 
-`outputs/plots/`
+### Example 2 – Validation Image 83
 
-The model also generated:
+This example demonstrates a close visual match between the ground-truth segmentation mask and the model prediction.
 
-- 20 validation predictions in `outputs/predictions/validation/`.
-- 50 test predictions in `outputs/predictions/test/`.
+![Tibia segmentation example 2](figures/tibia_segmentation_example_2.png)
 
-The predictions show the segmented tibia regions. Some differences between predicted and ground-truth boundaries may still remain.
+These examples illustrate the model's segmentation results on selected validation images. They are representative visual examples, not a guarantee of identical performance across every image.
 
-The 50 test images do not have corresponding annotated masks. Therefore, predictions were generated for all 50 test images, but a quantitative test Dice score could not be calculated.
+### Generated Predictions
 
-## 8. Technologies and Libraries
+The evaluation script generated:
+
+- **20 validation predictions** in `outputs/predictions/validation/`.
+- **50 test predictions** in `outputs/predictions/test/`.
+- **5 validation comparison figures** in `outputs/plots/`.
+
+The 50 test predictions were generated without quantitative evaluation because corresponding annotated masks were unavailable.
+
+## 6. Technologies and Libraries
 
 The project was developed using:
 
@@ -142,7 +156,7 @@ The project was developed using:
 - Pillow (PIL)
 - Matplotlib
 
-## 9. Project Structure
+## 7. Project Structure
 
 ```text
 Image-Segmentation/
@@ -158,9 +172,16 @@ Image-Segmentation/
 │       └── test.csv
 │
 ├── checkpoints/
+│
 ├── outputs/
 │   ├── plots/
 │   └── predictions/
+│       ├── validation/
+│       └── test/
+│
+├── figures/
+│   ├── tibia_segmentation_example.png
+│   └── tibia_segmentation_example_2.png
 │
 ├── train.py
 ├── evaluate.py
@@ -180,45 +201,47 @@ Image-Segmentation/
 └── README.md
 ```
 
-The original dataset, trained model checkpoints and generated prediction images are excluded from the public repository.
+The original dataset, trained model checkpoints and generated prediction images are excluded from the public repository. The two selected visualization figures are included in `figures/`.
 
-## 10. How to Run the Project
+## 8. How to Run the Project
 
-### Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/puja0711/tibia-xray-image-segmentation.git
 ```
 
-### Open the Project Folder
+### 2. Open the project folder
 
 ```bash
 cd tibia-xray-image-segmentation
 ```
 
-### Install the Required Libraries
+### 3. Install the required libraries
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Prepare the Dataset
+### 4. Prepare the dataset
 
 Obtain the dataset separately and prepare the image, mask and CSV folders according to the paths expected by the project.
 
 The dataset must be prepared before training.
 
-### Train the Model
+### 5. Train the model
 
 ```bash
 python train.py
 ```
 
-The best checkpoint is saved as:
+The best model checkpoint is saved as:
 
-`checkpoints/best_model_lext.pth`
+```text
+checkpoints/best_model_lext.pth
+```
 
-### Evaluate the Model
+### 6. Evaluate the model
 
 ```bash
 python evaluate.py
@@ -226,28 +249,30 @@ python evaluate.py
 
 The evaluation script loads the saved checkpoint, evaluates the validation images and generates predictions for the test images.
 
-## 11. Project Limitations
+## 9. Project Limitations
 
-Some limitations of this project are:
+Some limitations of this project include:
 
 - The number of annotated training images was limited to 80.
-- The predicted masks may not perfectly match the ground-truth boundaries.
-- Model performance may vary between different X-ray images.
+- Predicted segmentation boundaries may not perfectly match the ground-truth masks.
+- Model performance can vary between different X-ray images.
 - The 50 test images do not have ground-truth masks, so quantitative test evaluation was not possible.
-- Further experimentation with model architecture, training settings and preprocessing could improve the results.
+- Further experimentation with model architecture, training settings and preprocessing could provide additional improvements.
 
-## 12. License and Attribution
+## 10. License and Attribution
 
-This project uses a modified U-Net implementation developed by Aleksei Tiulpin, University of Oulu (2017).
+This project uses a modified U-Net implementation developed by **Aleksei Tiulpin, University of Oulu (2017)**.
 
 The original copyright notice is preserved in the model implementation.
 
-The implementation is distributed under the MIT License. The original `LICENSE` file is included in this repository.
+The original MIT License is included in the repository in the `LICENSE` file.
 
-## 13. Conclusion
+## 11. Conclusion
 
-In this project, I developed and trained a U-Net-based model for tibia X-ray image segmentation using PyTorch.
+In this project, I developed and trained a deep learning model for tibia X-ray image segmentation using PyTorch and a modified U-Net architecture.
 
-The improved LeXT U-Net model achieved an average validation Dice score of 96.37% across 20 validation images. It also generated segmentation predictions for 50 test images.
+The model achieved an average validation Dice score of **96.37% across 20 validation images** and generated segmentation predictions for 50 additional test images.
 
-Through this assignment, I gained practical experience in image preprocessing, binary segmentation, U-Net architectures, neural network training, model evaluation and visualization.
+Through this assignment, I gained practical experience in image preprocessing, binary image segmentation, U-Net architectures, neural network training, model evaluation and visualization.
+
+The project provided an opportunity to work with a real medical image segmentation task and understand the complete workflow of developing and evaluating a deep learning model.
